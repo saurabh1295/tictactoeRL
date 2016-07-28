@@ -1,4 +1,16 @@
-#!/usr/bin/python
+# This is an attempt to create a learning agent that can learn to play tic tac toe using the Q-learning algorithm
+# I first attempted to create an agent that always tried to win, but this led to an agent that was losing too easily
+# Thus, I started "punishing" the agent for losing by giving negative rewards 
+# The state has been depicted as a numpy array of 10 axes, the first 9 of which indicate the 9 boxes and the last is for the actions 
+# The board has a configuration of 
+#   7| 8| 9
+#  __|__|__
+#   4| 5| 6
+#  __|__|__
+#   1| 2| 3
+#    |  |
+
+
 import random
 import numpy as np
 #initialize some global variables
@@ -6,6 +18,9 @@ alpha = 0.99
 epsilon = 0.1
 playerchar='X'
 compchar = 'O'
+
+# Some helper functions to 
+#Print the current board
 def printBoard(board):
 	print('   |  |   ');
 	print(' '+board[6]+' |'+board[7]+' |'+board[8])
@@ -14,6 +29,7 @@ def printBoard(board):
 	print('___|__|___');
 	print(' '+board[0]+' |'+board[1]+' |'+board[2])
 	print('   |  |');
+
 #Initializes the board for a new game	
 def boardInit():	
 	board =[]
@@ -21,11 +37,9 @@ def boardInit():
 		board.append(' ')
 	return board
 
-# I am using a 2-D numpy array to store the state and actions
-# The value by default is 0 which means that that state is currently free
-# Value 1 implies 
-# 
-# 
+# This state is a numpy array which stores the 9 elements 0 indicates blank
+# 1 indicates O
+# 2 indicates X
 def getState(board):
 	global compchar
 	state = np.zeros(9,dtype="int")
@@ -35,12 +49,17 @@ def getState(board):
 		elif board[i] == 'X':
 			state[i]=2
 	return state
+
+# Returns a list of possible actions from current state
+
 def getPossibleActions(board):
 	possibleactions = []
 	for i in range(len(board)):
 		if(board[i] == ' '):
 			possibleactions.append(i)
 	return possibleactions
+
+
 # Q values stores the Qvalue for all states 
 # The first dim is for blanks
 # The second dim is for computer's states
@@ -51,12 +70,13 @@ def qValInit():
 	qVal = qVal*0.5
 	return qVal
 
-# Returns true is the next state is valid
+# Returns true if the next state is valid
 def isValidAction(board,action):
 	if board[action] == ' ':
 		return True
 	else:
 		return False
+
 def isBoardFull(board):
 	for i in range(len(board)):
 		if board[i] == ' ':
@@ -64,7 +84,10 @@ def isBoardFull(board):
 	return True
 
 def getPlayerMove(board):
-		while True:
+		print("Choose the next action input(1-9)")
+		move = raw_input()
+		move = int(move) -1
+		while not isValidAction(board,move):
 			print("Choose the next action input(1-9)")
 			move = raw_input()
 			move = int(move) -1
@@ -92,6 +115,8 @@ def getNextBoardState(boarde,turn,action):
 		else:
 			lamb[action] = playerchar
 	return lamb
+
+
 def hasWon(bo,turn):
 	global playerchar
 	global compchar
@@ -107,7 +132,6 @@ def hasWon(bo,turn):
       (bo[8] == le and bo[5] == le and bo[2] == le) or # down the right side
       (bo[6] == le and bo[4] == le and bo[2] == le) or # diagonal
       (bo[8] == le and bo[4] == le and bo[0] == le)) # diagonal
-nextAction = 0
 def evalNextStateforComp(board,player,opp):
 	global alpha 
 	global epsilon
@@ -144,16 +168,8 @@ def evalNextStateforComp(board,player,opp):
 	return checkBoard
 
 def chooseVals():
-	letter = ' '
-	while not(letter=='X' or letter == 'O'):
-		print("Do you want X or O?")
-		letter = raw_input()
-		letter = letter.upper()
-	if letter == 'X':
+		print("You are X")
 		return ['X','O']
-	else:
-		return ['O','X']
-
 
 ########################################
 comp = 'comp'
@@ -165,35 +181,7 @@ playerchar,compchar=['X','O']
 compwins = 0
 playerwins = 0
 ties = 0	
-# for i in range(10000):
-# 		board = boardInit()
 	
-# 		if random.randint(0,1) == 0:
-# 			turn = comp
-# 		else:
-# 			turn = user
-	
-# 		while inPlayauto:
-# 			if isBoardFull(board):
-# 				print "Tie!!"
-# 				ties = ties + 1
-# 				break
-# 			if(turn == user):
-# 				board = evalNextStateforUser(board)
-# 				if hasWon(board,turn):
-# 					playerwins = playerwins + 1
-# 					updateQvals(board)
-# 					print("You won!\n")
-# 					break
-# 				turn = comp
-# 			else:
-# 				board = evalNextStateforComp(board)
-# 				if hasWon(board,turn):
-# 					compwins= compwins+1
-# 					print("You lost!")
-# 					break
-# 				turn = user
-# playerchar,compchar=['0','X']	
 for i in range(100000):
 	board = boardInit()
 
@@ -226,6 +214,8 @@ for i in range(100000):
 print("Computer won ",compwins)
 print("Player won ",playerwins)
 print("ties ",ties)
+
+
 epsilon = 0.05
 while True:
 	board = boardInit()
